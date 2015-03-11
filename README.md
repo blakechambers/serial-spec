@@ -1,15 +1,29 @@
 # SerialSpec
 
-SerialSpec is designed provide some simple matchers and macros overlaying a simple `rack/test` setup for testing json apis more effectively.  There are a few good requirements to get you going:
-
-* Rspec 3.x.  This gem uses (or will use) several parts of rspecs syntax.
-* Json api
-* ActiveModelSerializers
-* Single request testing pattern test architecture.
+SerialSpec is designed provide some simple matchers and macros overlaying a simple `rack/test` setup for testing json apis more effectively.
 
 ## Usage
 
-see [examples](https://github.com/blakechambers/serial-spec/blob/master/spec/serial_spec_spec.rb).
+```ruby
+require "spec_helper"
+
+RSpec.describe "test" do
+  include SerialSpec
+
+  request_method "GET"
+  request_path   "/"
+
+  it_expects(:content_encoding) { expect(status).to eq(200) }
+  it_expects(:content_type)     { expect(status).to eq(200) }
+end
+```
+
+## 0.2.0 - planned
+
+- [x] `request_response`
+- [x] `with_request`
+- [x] `it_expects`
+- [ ] provides_matcher and better response selector support
 
 ## Testing architecture
 
