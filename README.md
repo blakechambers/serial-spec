@@ -9,7 +9,7 @@ SerialSpec is designed provide some simple matchers and macros overlaying a simp
 
 ## Usage
 
-TODO: code samples
+see [examples](https://github.com/blakechambers/serial-spec/blob/master/spec/serial_spec_spec.rb).
 
 ## Testing architecture
 
