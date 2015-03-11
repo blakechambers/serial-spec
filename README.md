@@ -7,6 +7,10 @@ SerialSpec is designed provide some simple matchers and macros overlaying a simp
 * ActiveModelSerializers
 * Single request testing pattern test architecture.
 
+## Usage
+
+TODO: code samples
+
 ## Testing architecture
 
 SerialSpec is assuming that you are:
