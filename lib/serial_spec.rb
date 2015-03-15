@@ -9,7 +9,7 @@ module SerialSpec
   extend ActiveSupport::Concern
   include ItExpects
   include RequestResponse
-  include ParsedBody
+  include RequestResponse::Helpers
   SERIAL_VALID_VERBS = %w{GET POST PUT PATCH DELETE OPTIONS HEAD}
 
   module ClassMethods
