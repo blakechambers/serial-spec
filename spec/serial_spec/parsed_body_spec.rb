@@ -14,7 +14,7 @@ RSpec.describe "SerialSpec::ParsedBody" do
     }.to_json
 
     body = SerialSpec::ParsedBody.new(json)
-    expect(body[:foo].first[:bar][:baz]).to eq(2)
+    expect(body[:foo].first[:bar][:baz].execute).to eq(1)
   end
 
 end

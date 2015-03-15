@@ -23,7 +23,8 @@ end
 - [x] `request_response`
 - [x] `with_request`
 - [x] `it_expects`
-- [ ] provides_matcher and better response selector support
+- [x] better response selector support
+- [ ] provides_matcher
 
 ## Testing architecture
 
