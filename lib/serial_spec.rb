@@ -10,23 +10,28 @@ module SerialSpec
   include ItExpects
   include RequestResponse
   include ParsedBody
+  SERIAL_VALID_VERBS = %w{GET POST PUT PATCH DELETE OPTIONS HEAD}
 
   module ClassMethods
 
     def with_request(request_str, params={}, envs={}, &block)
-      raise ArgumentError, "must format first argument like 'GET /messages'" unless request_str.split(/\s+/).count == 2
-      request_method_string, request_path_str = request_str.split(/\s+/)
+      if request_str.split(/\s+/).count == 2
+        request_method_string, request_path_str = request_str.split(/\s+/)
+      end
 
       context_klass = context "with request: '#{request_str}'" do
-        request_method request_method_string
-        request_path   request_path_str
-
-        if block_given?
-          instance_exec(&block)
-        else
-          it "should match all examples: #{__inherited_expectations__.keys}" do
-            perform_request!
+        if request_str.split(/\s+/).count == 2
+          request_method_string, request_path_str = request_str.split(/\s+/)
+          if SERIAL_VALID_VERBS.include?(request_method_string)
+            request_method request_method_string
+            request_path   request_path_str
           end
+        end
+
+        instance_exec(&block) if block_given?
+
+        it "should match all examples: #{__inherited_expectations__.keys}" do
+          perform_request!
         end
 
       end
@@ -34,5 +39,4 @@ module SerialSpec
     end
 
   end
-
 end

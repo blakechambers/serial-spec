@@ -19,6 +19,7 @@ module SerialSpec
     def perform_request!
       env = request_envs.merge(:method => request_method, :params => request_params.to_hash)
       env = current_session.send :env_for, request_path, env
+
       current_session.send :process_request, request_path, env
     end
 
