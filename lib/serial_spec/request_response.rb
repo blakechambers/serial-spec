@@ -1,11 +1,13 @@
 require "rack/test"
 require "inheritable_accessors/inheritable_hash_accessor"
+require "serial_spec/request_response/helpers"
 
 module SerialSpec
   module RequestResponse
     extend ActiveSupport::Concern
     include Rack::Test::Methods
     include InheritableAccessors::InheritableHashAccessor
+    include Helpers
 
     included do
       include ::SerialSpec::RequestResponse::DSL
@@ -43,30 +45,6 @@ module SerialSpec
           methud = request_opts[:method]
           return methud if methud
           raise "You must configure a request method"
-        end
-      end
-
-
-    end
-
-    module Helpers
-      extend ActiveSupport::Concern
-
-      def status
-        response.status
-      end
-
-      def headers
-        response.headers
-      end
-
-      def response
-        last_response
-      end
-
-      def body
-        @body ||= begin
-          JSON.parse(response.body)
         end
       end
 

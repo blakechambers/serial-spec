@@ -9,6 +9,44 @@ describe "SerialSpec::RequestResponse" do
 
   let(:stub_response) { [404, {}, []] }
 
+  context 'with_request' do
+    request_method "GET"
+    request_path   "/"
+
+    let(:response) { perform_request! ; last_response }
+
+    context "#status" do
+      it "should set status" do
+        expect(status).to eq(404)
+      end
+    end
+
+    context "#headers" do
+      it "should set status" do
+        expect(headers).to be_kind_of(Hash)
+      end
+    end
+
+    context "#body" do
+
+      it "should raise an error, when not a json body" do
+        expect{body}.to raise_error
+      end
+
+      context "when json formatted" do
+        let(:stub_response) do
+          [404, {"Content-Type" => "application/json"}, [{foo: "bar"}.to_json]]
+        end
+
+        it "should be kind of SerialSpec::ParsedBody" do
+          expect(body).to be_kind_of(SerialSpec::ParsedBody)
+        end
+      end
+
+    end
+
+  end
+
   context "with out configuring the request" do
 
     it "should raise an error on perform_request!" do
