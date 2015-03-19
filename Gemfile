@@ -1,9 +1,12 @@
 source 'https://rubygems.org'
 
-group :development do
+group :development, :test do
   gem "bundler",           "~> 1.8"
-  gem "byebug"
   gem "rake",              "~> 10.0"
+end
+
+group :development do
+  gem "byebug"
 end
 
 group :test do
