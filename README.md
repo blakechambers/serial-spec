@@ -1,4 +1,4 @@
-# SerialSpec
+# SerialSpec [![Build Status](https://travis-ci.org/blakechambers/serial-spec.svg?branch=master)](https://travis-ci.org/blakechambers/serial-spec)
 
 SerialSpec is designed provide some simple matchers and macros overlaying a simple `rack/test` setup for testing json apis more effectively.
 
