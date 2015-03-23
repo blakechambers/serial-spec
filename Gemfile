@@ -10,7 +10,9 @@ group :development do
 end
 
 group :test do
-  gem "rack-test",         "~> 0.6.3"
+  gem "appraisal"
+  gem "pry"
+  gem "rack-test",        "~> 0.6.3"
   gem "rspec",             "~> 3.2"
 end
 
