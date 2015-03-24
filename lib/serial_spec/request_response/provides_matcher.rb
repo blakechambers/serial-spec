@@ -1,7 +1,6 @@
 require 'active_support/inflector'
 require 'yaml'
 
-
 module SerialSpec
   module RequestResponse
     module ProvideMatcher
@@ -16,6 +15,7 @@ module SerialSpec
         attr_reader :as_serializer
         attr_reader :with_root
         attr_reader :expected
+        attr_reader :actual
 
         def initialize(expected,options={})
           @expected       = expected
@@ -31,45 +31,33 @@ module SerialSpec
           end
         end
 
-        def resource_hash
+        def resource_serializer
           if as_serializer
-            as_serializer.new(expected, root: with_root).as_json
+            as_serializer.new(expected, root: with_root)
           else
             unless expected.respond_to?(:active_model_serializer)
               throw(:failed, :serializer_not_specified_on_class)
             end
-            expected.active_model_serializer.new(expected,root: with_root).as_json
+            expected.active_model_serializer.new(expected,root: with_root)
           end
         end
 
-        def collection_hash
+        def collection_serializer
           if as_serializer
-            ActiveModel::ArraySerializer.new(expected,serializer: as_serializer, root: with_root ).as_json
+            ActiveModel::ArraySerializer.new(expected,serializer: as_serializer, root: with_root )
           else
-            ActiveModel::ArraySerializer.new(expected, root: with_root).as_json
+            ActiveModel::ArraySerializer.new(expected, root: with_root)
           end
         end
-
+        
+        # to_json first to normalize hash and all it's members
+        # the parse into JSON to compare to ParsedBody hash
         def expected_to_hash
           if expected.kind_of?(Array)
-            collection_hash
+            #hack
+            JSON.parse(collection_serializer.as_json.to_json)
           else
-            resource_hash
-          end
-        end
-
-        # TODO: improve this to be unordered comparison of keys/values for deep hashes
-        # for now a lazy deep comparison, look ma' no iteration!
-
-        def deep_match?(actual,expected_hash)
-          unless actual.kind_of?(Hash)
-            throw(:failed, :response_not_valid)
-          end
-          actual_cleaned = normalize_data(actual)
-          expected_cleaned = normalize_data(expected_hash)
-          if actual_cleaned.to_yaml.eql?(expected_cleaned.to_yaml)
-          else
-            throw(:failed, :response_and_model_dont_match)
+            JSON.parse(resource_serializer.as_json.to_json)
           end
         end
 
@@ -83,13 +71,22 @@ module SerialSpec
           end
         end
 
-        def matches?(actual)
-          failure = catch(:failed) do
-            deep_match?(actual_to_hash(actual),expected_to_hash) 
-          end
-          @failure_message = failed_message(failure) if failure 
-          !failure
-        end
+       def matches?(actual)
+         failure = catch(:failed) do
+           unless actual.kind_of?(Hash) || actual.kind_of?(Array) || actual.kind_of?(ParsedBody)
+             throw(:failed, :response_not_valid)
+           end
+           @actual    = actual_to_hash(actual) 
+           @expected  = expected_to_hash 
+           if @actual == @expected
+             #noop - specs pass
+           else
+             throw(:failed, :response_and_model_dont_match)
+           end
+         end
+         @failure_message = failed_message(failure) if failure 
+         !failure
+       end
 
         # when rspec asserts eq
         alias == matches?
@@ -97,15 +94,13 @@ module SerialSpec
         def failed_message(msg) 
           case msg
           when :response_and_model_dont_match
-            "response and serialized object do not match" 
-          when :serializer_not_valid
-            "serializer not valid"
+            "Actual and Expected do not match.\nActual   #{actual}\nExpected #{expected}" 
           when :serializer_not_specified_on_class
-            "serializer not specified on class, see http://bit.ly/18TdmXs"
+            "'active_model_serializer' not implemented on expected, see ehttp://bit.ly/18TdmXs"
           when :response_not_valid
-            "response not valid or hash"
+            "Actual not valid Hash or Array.\nActual: #{actual}"
           else
-            "no failed_message found, this is default"
+            "no failed_message found for #{msg}"
           end
         end
 

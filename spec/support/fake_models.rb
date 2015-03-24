@@ -12,7 +12,6 @@ include ActiveModel::ArraySerializerSupport
     @attributes = attrs
     @options = options
   end
-
 end
 
 class Comment < Model
@@ -47,16 +46,25 @@ end
 
 
 # SErializers
+class BaseSerializer < ActiveModel::Serializer
+  #def to_json
+    #if options[:root]
+      #{options[:root].to_s => serializable_hash }.to_json
+    #else
+      #serializable_hash.to_json
+    #end
+  #end
+end
 
-class CommentSerializer < ActiveModel::Serializer
+class CommentSerializer < BaseSerializer
   attributes :title
 end
 
-class UserSerializer < ActiveModel::Serializer
+class UserSerializer < BaseSerializer  
   attributes :name
 end
 
-class PostSerializer < ActiveModel::Serializer
+class PostSerializer < BaseSerializer   
   attributes :title, :body
   has_many :comments, :serializer => CommentSerializer
   has_one :author, :serializer => UserSerializer
