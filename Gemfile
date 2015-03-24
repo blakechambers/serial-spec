@@ -6,11 +6,13 @@ group :development, :test do
 end
 
 group :development do
+  gem "appraisal"
   gem "byebug"
+  gem "pry"
 end
 
 group :test do
-  gem "rack-test",         "~> 0.6.3"
+  gem "rack-test",        "~> 0.6.3"
   gem "rspec",             "~> 3.2"
 end
 

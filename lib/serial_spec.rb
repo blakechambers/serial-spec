@@ -4,12 +4,21 @@ require "serial_spec/it_expects"
 require "serial_spec/parsed_body"
 require "serial_spec/request_response"
 require "inheritable_accessors"
+begin
+  require 'active_model_serializers'
+rescue LoadError
+end
 
 module SerialSpec
   extend ActiveSupport::Concern
   include ItExpects
   include RequestResponse
   include RequestResponse::Helpers
+  if defined?(ActiveModel::Serializer)
+    require "serial_spec/request_response/provides_matcher"
+    include RequestResponse::ProvideMatcher
+  end
+
   SERIAL_VALID_VERBS = %w{GET POST PUT PATCH DELETE OPTIONS HEAD}
 
   module ClassMethods
