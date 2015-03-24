@@ -8,6 +8,10 @@ begin
   require 'active_model_serializers'
 rescue LoadError
 end
+begin
+  require 'mongoid'
+rescue LoadError
+end
 
 module SerialSpec
   extend ActiveSupport::Concern
@@ -17,6 +21,9 @@ module SerialSpec
   if defined?(ActiveModel::Serializer)
     require "serial_spec/request_response/provides_matcher"
     include RequestResponse::ProvideMatcher
+  end
+  if defined?(Mongoid)
+    require "serial_spec/mongoid_bson_patch"
   end
 
   SERIAL_VALID_VERBS = %w{GET POST PUT PATCH DELETE OPTIONS HEAD}

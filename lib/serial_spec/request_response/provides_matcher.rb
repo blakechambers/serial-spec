@@ -1,6 +1,7 @@
 require 'active_support/inflector'
 require 'yaml'
 
+
 module SerialSpec
   module RequestResponse
     module ProvideMatcher
