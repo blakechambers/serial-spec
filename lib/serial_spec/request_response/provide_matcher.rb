@@ -72,7 +72,7 @@ module SerialSpec
         end
 
        def strip_hypermedia(actual)
-         actual.delete_if {|k,v| k == "links" }
+         actual.delete_if {|k,v| ["links","includes"] == k }
        end
 
        def matches?(actual)
