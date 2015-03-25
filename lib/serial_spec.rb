@@ -6,6 +6,7 @@ require "serial_spec/request_response"
 require "inheritable_accessors"
 begin
   require 'active_model_serializers'
+  require 'bson'
 rescue LoadError
 end
 
