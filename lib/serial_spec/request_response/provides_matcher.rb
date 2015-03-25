@@ -25,9 +25,9 @@ module SerialSpec
 
         def actual_to_hash(actual)
           if actual.kind_of? SerialSpec::ParsedBody 
-            actual.execute
+            strip_hypermedia(actual.execute)
           else
-            actual
+            strip_hypermedia(actual)
           end
         end
 
@@ -71,13 +71,19 @@ module SerialSpec
           end
         end
 
+       def strip_hypermedia(actual)
+         actual.delete_if {|k,v| k == "links" }
+       end
+
        def matches?(actual)
+
          failure = catch(:failed) do
            unless actual.kind_of?(Hash) || actual.kind_of?(Array) || actual.kind_of?(ParsedBody)
              throw(:failed, :response_not_valid)
            end
            @actual    = actual_to_hash(actual) 
            @expected  = expected_to_hash 
+
            if @actual == @expected
              #noop - specs pass
            else
