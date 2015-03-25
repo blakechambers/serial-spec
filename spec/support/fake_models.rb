@@ -46,25 +46,15 @@ end
 
 
 # SErializers
-class BaseSerializer < ActiveModel::Serializer
-  #def to_json
-    #if options[:root]
-      #{options[:root].to_s => serializable_hash }.to_json
-    #else
-      #serializable_hash.to_json
-    #end
-  #end
-end
-
-class CommentSerializer < BaseSerializer
+class CommentSerializer < ActiveModel::Serializer
   attributes :title
 end
 
-class UserSerializer < BaseSerializer  
+class UserSerializer < ActiveModel::Serializer
   attributes :name
 end
 
-class PostSerializer < BaseSerializer   
+class PostSerializer < ActiveModel::Serializer
   attributes :title, :body
   has_many :comments, :serializer => CommentSerializer
   has_one :author, :serializer => UserSerializer
