@@ -9,8 +9,21 @@ include ActiveModel::ArraySerializerSupport
 
   attr_reader :options, :attributes
   def initialize(attrs={},options={})
-    @attributes = attrs
+    @some_id = make_id
+    @attributes = attrs.merge(some_id: @some_id) if attrs
     @options = options
+  end
+
+  def some_id
+    @some_id.to_s
+  end
+
+  def make_id
+    if defined?(BSON)
+      BSON::ObjectId.new
+    else
+      rand(100)
+    end
   end
 end
 
@@ -45,16 +58,24 @@ class User < Model
 end
 
 
+
+class BaseSerializer < ActiveModel::Serializer
+  attributes :some_id
+  def to_json
+    as_json.to_json
+  end
+end
+
 # SErializers
-class CommentSerializer < ActiveModel::Serializer
+class CommentSerializer < BaseSerializer
   attributes :title
 end
 
-class UserSerializer < ActiveModel::Serializer
-  attributes :name
+class UserSerializer < BaseSerializer
+  attributes :name     
 end
 
-class PostSerializer < ActiveModel::Serializer
+class PostSerializer < BaseSerializer 
   attributes :title, :body
   has_many :comments, :serializer => CommentSerializer
   has_one :author, :serializer => UserSerializer

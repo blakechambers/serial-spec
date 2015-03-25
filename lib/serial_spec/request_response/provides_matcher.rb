@@ -57,7 +57,7 @@ module SerialSpec
             #hack
             JSON.parse(collection_serializer.as_json.to_json)
           else
-            JSON.parse(resource_serializer.as_json.to_json)
+            JSON.parse(resource_serializer.to_json)
           end
         end
 

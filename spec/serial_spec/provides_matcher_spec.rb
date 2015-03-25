@@ -15,7 +15,7 @@ if defined?(ActiveModel::Serializer)
       ]
     end
 
-    let(:resource_json) { PostSerializer.new(post).as_json.to_json }
+    let(:resource_json) { PostSerializer.new(post).to_json }
     let(:collection_json) { ActiveModel::ArraySerializer.new(posts,serializer: PostSerializer, root: 'posts').as_json.to_json}
 
     let(:response) { resource_json }
@@ -42,7 +42,7 @@ if defined?(ActiveModel::Serializer)
         context "resource" do
           context ":with_root" do
             let(:fake_root) { "fake_root" }
-            let(:resource_json) { PostSerializer.new(post, root: fake_root).as_json.to_json } 
+            let(:resource_json) { PostSerializer.new(post, root: fake_root).to_json } 
             it "should match serialized resource with supplied root" do
               expect(parsed_body).to provide(post, as: PostSerializer, with_root: fake_root)
             end
@@ -91,14 +91,14 @@ if defined?(ActiveModel::Serializer)
             expect(parsed_body[:post]).to provide(post)
           end
           context "no :as Serializer" do
-            let(:resource_json) { PostSerializer.new(post).as_json.to_json } 
+            let(:resource_json) { PostSerializer.new(post).to_json } 
             it "should match serialized resource" do
               expect(parsed_body).to provide(post, with_root: "post")
             end
           end
           context ":with_root" do
             let(:fake_root) { "fake_root" }
-            let(:resource_json) { PostSerializer.new(post, root: fake_root).as_json.to_json } 
+            let(:resource_json) { PostSerializer.new(post, root: fake_root).to_json } 
             it "should match serialized resource with supplied root" do
               expect(parsed_body).to provide(post, as: PostSerializer, with_root: fake_root)
             end
@@ -107,7 +107,6 @@ if defined?(ActiveModel::Serializer)
 
         context "collection" do
           let(:response) { collection_json }
-
           it "should not match serialized resource without root" do
             expect(parsed_body).not_to provide(posts, as: PostSerializer)
           end
