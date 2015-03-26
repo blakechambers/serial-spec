@@ -16,7 +16,7 @@ module SerialSpec
   include RequestResponse
   include RequestResponse::Helpers
   if defined?(ActiveModel::Serializer)
-    require "serial_spec/request_response/provides_matcher"
+    require "serial_spec/request_response/provide_matcher"
     include RequestResponse::ProvideMatcher
   end
 

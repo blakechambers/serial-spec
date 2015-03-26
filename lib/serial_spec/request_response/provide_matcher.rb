@@ -17,6 +17,8 @@ module SerialSpec
         attr_reader :expected
         attr_reader :actual
 
+        HYPERMEDIA_ATTRIBUTES = ["links", "includes"]
+
         def initialize(expected,options={})
           @expected       = expected
           @as_serializer  = options[:as]
@@ -72,7 +74,7 @@ module SerialSpec
         end
 
        def strip_hypermedia(actual)
-         actual.delete_if {|k,v| k == "links" }
+         actual.delete_if {|k,v| HYPERMEDIA_ATTRIBUTES.include?(k) }
        end
 
        def matches?(actual)
