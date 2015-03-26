@@ -18,14 +18,6 @@ RSpec.describe "test" do
 end
 ```
 
-## 0.2.0 - planned
-
-- [x] `request_response`
-- [x] `with_request`
-- [x] `it_expects`
-- [x] better response selector support
-- [ ] provides_matcher
-
 ## Testing architecture
 
 SerialSpec is assuming that you are:
