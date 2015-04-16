@@ -5,18 +5,18 @@ if defined?(ActiveModel::Serializer)
   describe "SerialSpec::RequestResponse::ProvideMatcher" do
     include SerialSpec::RequestResponse::ProvideMatcher
 
-    let(:post) do
-      Post.new(:title => "New Post", :body => "Body of new post")
-    end
-    let(:posts) do 
+    let(:post)       { Post.new(title: "title", body: "body") }
+    let(:other_post) { Post.new(title: "title2", body: "body2") }
+
+    let(:posts) do
       [
-        Post.new(:title => "New Post", :body => "Body of new post"),
-        Post.new(:title => "New Post2", :body => "Body of new post2")
+        post,
+        other_post
       ]
     end
 
-    let(:resource_json) { PostSerializer.new(post).to_json }
-    let(:collection_json) { ActiveModel::ArraySerializer.new(posts,serializer: PostSerializer, root: 'posts').as_json.to_json}
+    let(:resource_json) { PostSerializer.new(post, root: nil).to_json }
+    let(:collection_json) { ActiveModel::ArraySerializer.new(posts, serializer: PostSerializer, root: nil).as_json.to_json}
 
     let(:response) { resource_json }
     let(:parsed_body) { SerialSpec::ParsedBody.new(response) }
@@ -34,7 +34,7 @@ if defined?(ActiveModel::Serializer)
 
       context "when actual is Hash" do
         it "should match" do
-          expect(parsed_body.execute).to provide(post, as: PostSerializer, with_root: :post)
+          expect(parsed_body.execute).to provide(post, as: PostSerializer)
         end
       end
 
@@ -42,9 +42,9 @@ if defined?(ActiveModel::Serializer)
         context "resource" do
           context ":with_root" do
             let(:fake_root) { "fake_root" }
-            let(:resource_json) { PostSerializer.new(post, root: fake_root).to_json } 
+            let(:resource_json) { PostSerializer.new(post, root: nil).as_json.to_json }
             it "should match serialized resource with supplied root" do
-              expect(parsed_body).to provide(post, as: PostSerializer, with_root: fake_root)
+              expect(parsed_body).to provide(post, as: PostSerializer)
             end
           end
         end
@@ -52,30 +52,29 @@ if defined?(ActiveModel::Serializer)
         context "collection" do
           let(:response) { collection_json }
           context ":with_root" do
-            let(:fake_root) { "fake_root" }
-            let(:collection_json) { ActiveModel::ArraySerializer.new(posts,serializer: PostSerializer, root: fake_root).as_json.to_json}
+            let(:collection_json) { ActiveModel::ArraySerializer.new(posts,serializer: PostSerializer, root: nil).as_json.to_json}
             it "should match serialized resource with supplied root" do
-              expect(parsed_body).to provide(posts, as: PostSerializer, with_root: fake_root)
+              expect(parsed_body).to provide(posts, as: PostSerializer)
             end
           end
         end
       end
 
       context "with associations" do
-        let(:comments) do 
+        let(:comments) do
           [Comment.new(:title => "Comment1"), Comment.new(:title => "Comment2")]
         end
-        let(:reordered_comments) do 
+        let(:reordered_comments) do
           comments.reverse
         end
         let(:user) { User.new(name: "Enrique") }
-        let(:post) do 
+        let(:post) do
           p = Post.new(:title => "New Post", :body => "Body of new post")
           p.comments = comments
           p.author = user
           p
         end
-        let(:other_post) do 
+        let(:other_post) do
           p = post
           p.comments = reordered_comments
           p.author = user
@@ -91,16 +90,15 @@ if defined?(ActiveModel::Serializer)
             expect(parsed_body[:post]).to provide(post)
           end
           context "no :as Serializer" do
-            let(:resource_json) { PostSerializer.new(post).to_json } 
+            let(:resource_json) { PostSerializer.new(post, root: nil).as_json.to_json }
             it "should match serialized resource" do
-              expect(parsed_body).to provide(post, with_root: "post")
+              expect(parsed_body).to provide(post)
             end
           end
           context ":with_root" do
-            let(:fake_root) { "fake_root" }
-            let(:resource_json) { PostSerializer.new(post, root: fake_root).to_json } 
+            let(:resource_json) { PostSerializer.new(post, root: nil).as_json.to_json }
             it "should match serialized resource with supplied root" do
-              expect(parsed_body).to provide(post, as: PostSerializer, with_root: fake_root)
+              expect(parsed_body).to provide(post, as: PostSerializer)
             end
           end
         end
@@ -121,19 +119,12 @@ if defined?(ActiveModel::Serializer)
           end
 
           context "no :as Serializer" do
-            let(:collection_json) { ActiveModel::ArraySerializer.new(posts,serializer: PostSerializer, root: 'posts').as_json.to_json}
+            let(:collection_json) { ActiveModel::ArraySerializer.new(posts, serializer: PostSerializer).as_json.to_json}
             it "should not match response " do
-              expect(parsed_body).to_not provide(posts, as: PostSerializer)
+              expect(parsed_body).to provide(posts)
             end
           end
 
-          context ":with_root" do
-            let(:fake_root) { "fake_root" }
-            let(:collection_json) { ActiveModel::ArraySerializer.new(posts,serializer: PostSerializer, root: fake_root).as_json.to_json}
-            it "should match serialized resource with supplied root" do
-              expect(parsed_body).to provide(posts, as: PostSerializer, with_root: fake_root)
-            end
-          end
         end
 
       end
