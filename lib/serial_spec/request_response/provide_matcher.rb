@@ -53,7 +53,6 @@ module SerialSpec
         # to_json first to normalize hash and all it's members
         # the parse into JSON to compare to ParsedBody hash
         def expected_to_hash
-          
           if expected.kind_of?(Array)
             #hack
             JSON.parse(collection_serializer.as_json.to_json)
@@ -73,7 +72,7 @@ module SerialSpec
         end
 
        def strip_hypermedia(actual)
-         actual.delete_if {|k,v| HYPERMEDIA_ATTRIBUTES.include?(k) }
+         (actual || {}).delete_if {|k,v| HYPERMEDIA_ATTRIBUTES.include?(k) }
        end
 
        def matches?(actual)
