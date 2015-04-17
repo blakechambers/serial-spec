@@ -5,6 +5,9 @@ module SerialSpec
 
   class ParsedBody
     class MissingSelectorError < StandardError ; end
+    class NotAnEnumerableObject < StandardError ; end
+
+    include Enumerable
 
     attr_accessor :raw_body
     attr_accessor :selector
@@ -17,6 +20,32 @@ module SerialSpec
 
     def body
       @body ||= JSON.parse(raw_body)
+    end
+
+    def each(&block)
+      current_obj = clone.execute
+      raise NotAnEnumerableObject unless current_obj.kind_of?(Hash) or current_obj.kind_of?(Array)
+
+
+
+      if current_obj.kind_of?(Array)
+        current_obj.each_with_index do |item, i|
+          yield(
+            clone.tap do |b|
+              b.selector.push([:[], i])
+            end
+          )
+        end
+      else
+        current_obj.each do |key, value|
+          yield(
+            key,
+            clone.tap do |b|
+              b.selector.push([:[], key])
+            end
+          )
+        end
+      end
     end
 
     def [](*args)

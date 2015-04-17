@@ -48,9 +48,53 @@ RSpec.describe "SerialSpec::ParsedBody" do
     expect(body[:foo][:bar].execute).to eq("bar value")
   end
 
+  it "should mix enumerable" do
+    expect(SerialSpec::ParsedBody.included_modules).to include(Enumerable)
+  end
+
   context "#each" do
-    it "should enumerate over item in array"
-    it "should enumerate over each pair in objects"
+    it "should raise an error when attempting to iterate over non-array or hash items (strings, numbers, etc)" do
+      json = {
+        str: "bar",
+        num: 0
+      }.to_json
+
+      body = SerialSpec::ParsedBody.new(json)
+
+      expect{body[:str].each}.to raise_error(SerialSpec::ParsedBody::NotAnEnumerableObject)
+      expect{body[:num].each}.to raise_error(SerialSpec::ParsedBody::NotAnEnumerableObject)
+    end
+
+    it "should enumerate over item in array" do
+      json = [
+        {
+          foo: "bar"
+        },
+        {
+          foo: "bar"
+        }
+      ].to_json
+
+      body = SerialSpec::ParsedBody.new(json)
+      body.each do |member|
+        expect(member[:foo].execute).to eq("bar")
+      end
+    end
+
+    it "should enumerate over each pair in objects" do
+      json = {
+        a: "bar",
+        b: "bar",
+        c: "bar"
+      }
+
+      expected_keys = json.keys
+      body = SerialSpec::ParsedBody.new(json.to_json)
+
+      body.each do |key, member|
+        expect(member.execute).to eq("bar")
+      end
+    end
   end
 
 end
