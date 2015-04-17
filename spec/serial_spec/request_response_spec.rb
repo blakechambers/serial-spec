@@ -30,7 +30,7 @@ describe "SerialSpec::RequestResponse" do
     context "#body" do
 
       it "should raise an error, when not a json body" do
-        expect{body}.to raise_error
+        expect{body.execute}.to raise_error
       end
 
       context "when json formatted" do

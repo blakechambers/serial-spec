@@ -25,12 +25,27 @@ RSpec.describe "SerialSpec::ParsedBody" do
 
   it "should raise an error when an object is expected, but not availale " do
     body = SerialSpec::ParsedBody.new("{}")
-    expect{body[:test][:test].execute}.to raise_error(SerialSpec::ParsedBody::MissingSelectorError)
+    expect{body[:parent][:child].execute}.to raise_error(SerialSpec::ParsedBody::MissingSelectorError, "expected an object to have [:child], but found NilClass:\"\" at [:parent]")
   end
 
-  xit "should raise an error when an object is expected, but not availale " do
-    body = SerialSpec::ParsedBody.new("{}")
-    expect{body.first[:test].execute}.to raise_error
+  it "should raise an error when an array is expected, but not availale " do
+    json = { foo: 'test'}.to_json
+    body = SerialSpec::ParsedBody.new(json)
+    expect{body.first.execute}.to raise_error(SerialSpec::ParsedBody::MissingSelectorError, "expected an array at \"\", but found Hash:'{\"foo\"=>\"test\"}'")
+  end
+
+  it "should not mutate when adding selectors" do
+    json = {
+      foo: {
+        bar: "bar value"
+      }
+    }.to_json
+
+    body = SerialSpec::ParsedBody.new(json)
+    body[:foo] # this is mutating the selector, problem
+
+    expect(body[:bar].execute).to_not eq("bar value")
+    expect(body[:foo][:bar].execute).to eq("bar value")
   end
 
   context "#each" do

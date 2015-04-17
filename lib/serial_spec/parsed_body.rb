@@ -6,27 +6,35 @@ module SerialSpec
   class ParsedBody
     class MissingSelectorError < StandardError ; end
 
-    attr_reader :raw_body
-    attr_reader :selector
+    attr_accessor :raw_body
+    attr_accessor :selector
+    attr_reader   :body
 
-    def initialize(body)
-      @selector = []
-      @raw_body = JSON.parse(body)
+    def initialize(raw_body=nil, options={})
+      @selector = options[:selector] || []
+      @raw_body = raw_body
+    end
+
+    def body
+      @body ||= JSON.parse(raw_body)
     end
 
     def [](*args)
-      selector.push([:[], *args])
-      self
+      clone.tap do |b|
+        b.selector.push([:[], *args])
+      end
     end
 
     def first(*args)
-      selector.push([:first])
-      self
+      clone.tap do |b|
+        b.selector.push([:first])
+      end
     end
 
     def last(*args)
-      selector.push([:last])
-      self
+      clone.tap do |b|
+        b.selector.push([:last])
+      end
     end
 
     def execute
@@ -36,13 +44,15 @@ module SerialSpec
 
       failure = catch(:failed) do
 
-        return copy.inject(raw_body) do |remainder, method_and_args|
-          # require 'byebug'
-          # byebug
+        return copy.inject(body) do |remainder, method_and_args|
           current_selector << method_and_args
           methud, *args = method_and_args
 
-          throw(:failed, [:expected_object, remainder, current_selector, method_and_args]) unless remainder.respond_to?(methud)
+          if [:first, :last].include?(methud) || args.first.kind_of?(Fixnum)
+            throw(:failed, [:expected_array, remainder, current_selector, method_and_args]) unless remainder.kind_of?(Array)
+          else
+            throw(:failed, [:expected_object, remainder, current_selector, method_and_args]) unless remainder.kind_of?(Hash)
+          end
 
           if remainder.kind_of?(Hash)
             remainder.with_indifferent_access.send methud, *args
@@ -61,13 +71,19 @@ module SerialSpec
 
   private ###############################
 
+    def initialize_copy(other)
+      @selector = other.selector.clone
+      @raw_body = other.raw_body
+    end
+
     def formatted_selector(selector)
       output = ""
+
       selector.each do |item|
         if item.first == :[]
-          output << "[#{item.last}]"
+          output << "[#{item.last.inspect}]"
         else
-          output << item.first
+          output << "[#{item.first.inspect}]"
         end
       end
       output
@@ -76,9 +92,9 @@ module SerialSpec
     def failed_message(msg, remainder, selector, current_selector)
       case msg
       when :expected_object
-        "expected an object to have #{formatted_selector([current_selector])}, but found #{remainder.class}:'#{remainder}' at #{formatted_selector(selector[0..-2])}"
+        "expected an object to have #{formatted_selector([current_selector])}, but found #{remainder.class}:\"#{remainder}\" at #{formatted_selector(selector[0..-2])}"
       when :expected_array
-        "expected an object to have #{formatted_selector([current_selector])}, but found #{remainder.class}:'#{remainder}' at #{formatted_selector(selector[0..-2])}"
+        "expected an array at \"#{formatted_selector(selector[0..-2])}\", but found #{remainder.class}:'#{remainder}'"
       end
     end
 
