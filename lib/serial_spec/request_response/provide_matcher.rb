@@ -21,6 +21,10 @@ module SerialSpec
         def initialize(expected,options={})
           @expected       = expected
           @as_serializer  = options[:as]
+
+          if @as_serializer and not @as_serializer.instance_methods.include?(:serializable_hash)
+            raise ArgumentError, 'must be an active model serializer'
+          end
         end
 
         def actual_to_hash(actual)

@@ -23,10 +23,10 @@ if defined?(ActiveModel::Serializer)
     let(:execute_hash) { SerialSpec::ParsedBody.new(response).execute }
 
     context ":as not valid" do
-      # can't quite figure out how to assert the error string here
-      # like here: https://www.relishapp.com/rspec/rspec-expectations/v/3-2/docs/customized-message
-      xit "should return rspec error" do
-        expect(parsed_body).to provide(post, as: String)
+      it "should return rspec error" do
+        expect{
+          SerialSpec::RequestResponse::ProvideMatcher::Provide.new(post, as: String)
+        }.to raise_error(ArgumentError)
       end
     end
 
