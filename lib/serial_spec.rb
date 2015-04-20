@@ -33,8 +33,15 @@ module SerialSpec
         if request_str.split(/\s+/).count == 2
           request_method_string, request_path_str = request_str.split(/\s+/)
           if SERIAL_VALID_VERBS.include?(request_method_string)
-            request_method request_method_string
-            request_path   request_path_str
+            # Prefer preference to blocks, chances are the blocks need to be
+            # executed at a lower level
+            unless request_opts[:request_method] and request_opts[:request_method].instance_of?(InheritableAccessors::InheritableOptionAccessor::LetOption)
+              request_method request_method_string
+            end
+
+            unless request_opts[:request_path] and request_opts[:request_path].instance_of?(InheritableAccessors::InheritableOptionAccessor::LetOption)
+              request_path   request_path_str
+            end
           end
         end
 

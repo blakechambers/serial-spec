@@ -105,6 +105,25 @@ describe "SerialSpec::RequestResponse" do
     end
   end
 
+  context "when configuring the request_path with a block" do
+    request_method "GET"
+    request_path { instance_level_path }
+
+    let(:instance_level_path) { "/instance_path#{rand(112402598)}" }
+    let(:with_expectation) { hash_including("PATH_INFO" => instance_level_path) }
+    let(:app) { double() }
+
+    before do
+      expect(app).to receive(:call).
+        with(with_expectation).
+        and_return(stub_response)
+    end
+
+    it "should perform request" do
+      expect{perform_request!}.to_not raise_error
+    end
+  end
+
 
 
 end
