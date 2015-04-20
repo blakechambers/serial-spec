@@ -15,9 +15,16 @@ module SerialSpec
   include ItExpects
   include RequestResponse
   include RequestResponse::Helpers
+
   if defined?(ActiveModel::Serializer)
     require "serial_spec/request_response/provide_matcher"
     include RequestResponse::ProvideMatcher
+
+    if defined?(::RSpec) and
+       defined?(::RSpec::Core::Version::STRING) and
+       Gem::Version.new(::RSpec::Core::Version::STRING) >= Gem::Version.new("3.2.0")
+      require "serial_spec/request_response/include_provide_matcher"
+    end
   end
 
   SERIAL_VALID_VERBS = %w{GET POST PUT PATCH DELETE OPTIONS HEAD}

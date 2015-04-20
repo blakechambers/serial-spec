@@ -103,4 +103,21 @@ if defined?(ActiveModel::Serializer)
     end
   end
 
+  describe "SerialSpec::RequestResponse::IncludeAProvidedMatcher" do
+
+    it "should match with default serializer" do
+      post = Post.new(title: "title")
+
+      json = [
+        {},
+        PostSerializer.new(post, root: nil).as_json,
+        {}
+      ].to_json
+
+
+      body = SerialSpec::ParsedBody.new(json)
+      expect(body).to include_a_provided(post)
+    end
+  end
+
 end
