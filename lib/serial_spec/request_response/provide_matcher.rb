@@ -37,11 +37,7 @@ module SerialSpec
         end
 
         def actual_to_hash(actual)
-          if actual.kind_of? SerialSpec::ParsedBody
-            strip_hypermedia(actual.execute)
-          else
-            strip_hypermedia(actual)
-          end
+          actual.kind_of?(SerialSpec::ParsedBody) ? actual.execute : actual
         end
 
         def resource_serializer
@@ -85,7 +81,7 @@ module SerialSpec
         end
 
        def strip_hypermedia(actual)
-         (actual || {}).delete_if {|k,v| HYPERMEDIA_ATTRIBUTES.include?(k) }
+         (actual || {})
        end
 
        def matches?(actual)
