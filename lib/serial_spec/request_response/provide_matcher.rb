@@ -6,19 +6,28 @@ module SerialSpec
     module ProvideMatcher
 
       def provide(expected,options={})
-        SerialSpec::RequestResponse::ProvideMatcher::Provide.new(expected, options)
+        SerialSpec::RequestResponse::ProvideMatcher::Provide.new(self, expected, options)
+      end
+
+      def build_serializer(serializer, object, options)
+        serializer.new object, options
       end
 
       class Provide
         class SerializerNotFound < StandardError ; end
 
+        extend Forwardable
+
         attr_reader :as_serializer
         attr_reader :expected
         attr_reader :actual
 
+        def_delegator :@build_context, :build_serializer
+
         HYPERMEDIA_ATTRIBUTES = ["links", "includes"]
 
-        def initialize(expected,options={})
+        def initialize(build_context, expected, options={})
+          @build_context  = build_context
           @expected       = expected
           @as_serializer  = options[:as]
 
@@ -37,20 +46,20 @@ module SerialSpec
 
         def resource_serializer
           if as_serializer
-            as_serializer.new(expected, root: nil)
+            build_serializer as_serializer, expected, root: nil
           else
             unless expected.respond_to?(:active_model_serializer)
               throw(:failed, :serializer_not_specified_on_class)
             end
-            expected.active_model_serializer.new(expected, root: nil)
+            build_serializer expected.active_model_serializer, expected, root: nil
           end
         end
 
         def collection_serializer
           if as_serializer
-            ActiveModel::ArraySerializer.new(expected, serializer: as_serializer, root: nil )
+            build_serializer ActiveModel::ArraySerializer, expected, serializer: as_serializer, root: nil
           else
-            ActiveModel::ArraySerializer.new(expected, root: nil)
+            build_serializer ActiveModel::ArraySerializer, expected, root: nil
           end
         end
 
